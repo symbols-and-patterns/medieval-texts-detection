@@ -4,12 +4,31 @@ search_exclude: true
 image: images/logo.png
 ---
 
-This site is built with [fastpages](https://github.com/fastai/fastpages), An easy to use blogging platform with extra features for Jupyter Notebooks.
+# About
+We introduce a software for automatic character detection and recognition, which can be used for faster and precise annotation of supported prints. It was created to deal with the printed czech texts from the early modern period (ca. 1500 - 1750). Our goal is to make a tool, which makes annotation of such documents easier and allows the user to get precise annotations, which he/she can then use for subsequent analysis.
+
+The work was published at the DSMP 2020 conference:
+
+HULA, Jan, et al. Acquiring Custom OCR System with Minimal Manual Annotation. In: 2020 IEEE Third International Conference on Data Stream Mining & Processing (DSMP). IEEE, 2020. p. 231-236.
+
+# How does it work
+
+As most of OCR systems in use, we developed a pipelined system in which we solve individual steps independently of others:
+
+1.	Rotation of each document so that lines are horizontally oriented.
+2.	Detection detect all graphemes in a given document (creating bounding boxes)
+3.	Classification of each grapheme in the context in which it appears.
+
+All the steps are performed by trained neural network models. To rotate the pages to the upright position we use the VGG-11 network (NN-rot) to regress the angle of the rotation. For the detection of generic graphemes, we use a state-of-the-art model for object detection called RetinaNet (NN-det) which we slightly customized to fit our task. And finally the detected graphemes are classified in sequence by bi-LSTM network (NN-class).
+
 
 ![]({{site.baseurl}}/images/diagram.png "https://github.com/fastai/fastpages")
 
-[fastpages](https://github.com/fastai/fastpages) automates the process of creating blog posts via GitHub Actions, so you don't have to fuss with conversion scripts.  A full list of features can be found on [GitHub](https://github.com/fastai/fastpages).  
+The main contribution of the work is, that to train the network in each step we used differently obtained synthetic data (details in the cited paper). For example, for the detection task we made a script that prints random augmented graphemes on the blank pages and uses those pages to pre-train the model. It is later fine tuned only on few real real manually annotated pages. It is known that neural networks need a lot of data to train. The incorporation of synthetic data makes the usage of neural networks much cheaper and faster.
+At the moment only the detection part of the process is implemented in the presented software. As the task is hard and it is not perfect we implemented a possibility to manually correct detected bounding boxes.
 
-You can edit the `index.html` file to change this content.
+# About authors
 
-# Posts
+The software was created during the joint work of researchers from the Department of Czech language at the University of Ostrava (OU) and researchers from Institute for Research and Applications of Fuzzy Modeling (IRAFM).
+
+The research was supported by the project: SGS03/UVAFM/2020 Optical Character Recognition in Old Prints.
